@@ -1,0 +1,6 @@
+{
+  "name": "KawaKoe POS - Coffee Shop Cashier System",
+  "description": "Sistem aplikasi kasir POS modern & komprehensif untuk coffee shop KawaKoe dengan manajemen pesanan, modifikasi minuman, meja, barista display, kas laci, dan laporan penjualan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

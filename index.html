@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KawaKoe POS - Coffee Shop Cashier System</title>
+    <meta name="description" content="Aplikasi kasir POS modern & komprehensif untuk coffee shop KawaKoe dengan manajemen pesanan, barista display, denah meja, stok, kas laci, dan laporan." />
+    <meta property="og:title" content="KawaKoe POS - Coffee Shop Cashier System" />
+    <meta property="og:description" content="Aplikasi kasir POS modern & komprehensif untuk coffee shop KawaKoe." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body class="bg-stone-950 text-stone-100 min-h-screen flex flex-col antialiased selection:bg-amber-600 selection:text-white">
+
+    <!-- ================= FULLSCREEN LOGIN SCREEN ================= -->
+    <div id="screen-login" class="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center p-4">
+      <div class="w-full max-w-md bg-stone-900 border border-stone-800 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <!-- Logo & Header -->
+        <div class="text-center space-y-2">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-white shadow-lg shadow-amber-950/50">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+          </div>
+          <h1 class="text-xl font-extrabold text-stone-100 tracking-tight">KawaKoe Coffee & Roastery</h1>
+          <p class="text-xs text-stone-400">Portal Kasir & Sistem Point of Sale (POS)</p>
+        </div>
+
+        <!-- Closed Shift Success Banner on Login Screen -->
+        <div id="login-shift-closed-banner" class="hidden p-3 bg-emerald-950/80 border border-emerald-600 rounded-xl text-xs space-y-1.5 shadow-lg">
+          <div class="flex items-center justify-between">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>🔒</span>
+              <span id="login-shift-closed-title">Shift Kasir Berhasil Ditutup</span>
+            </span>
+            <button id="btn-login-view-shift-receipt" type="button" class="text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-2.5 py-1 rounded-lg cursor-pointer transition-colors flex items-center gap-1 shadow-sm">
+              <span>🖨️ Struk Rekap</span>
+            </button>
+          </div>
+          <p id="login-shift-closed-desc" class="text-[11px] text-stone-300">
+            Kas laci telah direkonsiliasi. Silakan login untuk memulai shift kerja baru.
+          </p>
+        </div>
+
+        <!-- Quick Demo Credential Card -->
+        <div class="p-3.5 bg-stone-950 border border-amber-600/40 rounded-xl space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-amber-400 font-semibold flex items-center gap-1.5">
+              <span>☕</span>
+              <span>Akun Demo Kasir</span>
+            </span>
+            <button id="btn-quick-fill-demo" type="button" class="text-[11px] bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 font-medium px-2 py-0.5 rounded cursor-pointer transition-colors">
+              Isi Otomatis
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-400 font-mono">
+            <div>User: <strong class="text-stone-200">abijo</strong></div>
+            <div>Password: <strong class="text-stone-200">12345678</strong></div>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" class="space-y-4 text-xs">
+          <div id="login-error-alert" class="hidden p-3 bg-red-950/50 border border-red-800/80 rounded-xl text-red-300 text-xs">
+            Username atau password salah! Gunakan username <strong>abijo</strong> dan password <strong>12345678</strong>.
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-stone-300">Username Kasir</label>
+            <input id="input-login-username" type="text" required placeholder="abijo" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500 transition-colors">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block font-semibold text-stone-300">Password Kasir</label>
+            <input id="input-login-password" type="password" required placeholder="••••••••" class="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500 transition-colors">
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs cursor-pointer shadow-lg shadow-amber-950/40 transition-colors flex items-center justify-center gap-2">
+            <span>Masuk ke Kasir KawaKoe</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </form>
+
+        <div class="text-center text-[10px] text-stone-500">
+          KawaKoe POS System v2.0 · Siap Operasional
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP BAR NAVIGATION (Strict 3-zone contract) -->
+    <header class="h-16 border-b border-stone-800 bg-stone-900/90 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between gap-4 shrink-0 z-30 select-none">
+      <!-- Zone 1: Brand Wordmark -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-white shadow-md shadow-amber-950/40">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+        </div>
+        <div>
+          <span class="text-base font-bold tracking-tight text-stone-100 whitespace-nowrap">KawaKoe Coffee</span>
+          <div class="text-[10px] text-amber-500/90 font-medium tracking-wider uppercase -mt-0.5">Roastery & POS</div>
+        </div>
+      </div>
+
+      <!-- Zone 2: Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-stone-950 p-1 rounded-xl border border-stone-800/80 text-xs font-semibold">
+        <button id="nav-btn-pos" class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-amber-400 bg-stone-800/90 transition-all cursor-pointer whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span>Kasir (POS)</span>
+        </button>
+        <button id="nav-btn-tables" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-stone-400 hover:text-stone-200 transition-all cursor-pointer whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <span>Denah Meja</span>
+        </button>
+        <button id="nav-btn-shifts" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-stone-400 hover:text-stone-200 transition-all cursor-pointer whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Kas Laci & Shift</span>
+        </button>
+        <button id="nav-btn-reports" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-stone-400 hover:text-stone-200 transition-all cursor-pointer whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Laporan Penjualan</span>
+        </button>
+      </nav>
+
+      <!-- Zone 3: Cashier Info & Settings & Logout -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div class="text-right hidden sm:block">
+          <div id="live-clock" class="text-xs font-mono font-bold text-stone-200 tabular-nums">00:00:00</div>
+          <div class="text-[10px] text-stone-400 flex items-center gap-1 justify-end">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span id="cashier-label">Kasir Abijo</span>
+          </div>
+        </div>
+        <button id="btn-open-settings" class="p-2 text-stone-400 hover:text-white bg-stone-800/80 hover:bg-stone-800 rounded-lg transition-colors cursor-pointer" title="Pengaturan Toko">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+        <button id="btn-logout" class="p-2 text-stone-400 hover:text-red-400 bg-stone-800/80 hover:bg-stone-800 rounded-lg transition-colors cursor-pointer" title="Keluar / Ganti Kasir">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Navigation Bottom Bar -->
+    <div class="md:hidden flex items-center justify-around bg-stone-900 border-b border-stone-800 p-2 text-xs overflow-x-auto gap-2">
+      <button class="nav-tab active px-3 py-1.5 rounded-lg text-amber-400 bg-stone-800 whitespace-nowrap" data-target="view-pos">🛒 Kasir</button>
+      <button class="nav-tab px-3 py-1.5 rounded-lg text-stone-400 whitespace-nowrap" data-target="view-tables">🪑 Meja</button>
+      <button class="nav-tab px-3 py-1.5 rounded-lg text-stone-400 whitespace-nowrap" data-target="view-shifts">💰 Kas Laci</button>
+      <button class="nav-tab px-3 py-1.5 rounded-lg text-stone-400 whitespace-nowrap" data-target="view-reports">📊 Laporan</button>
+    </div>
+
+    <!-- MAIN APPLICATION WRAPPER -->
+    <main class="flex-1 flex overflow-hidden relative">
+
+      <!-- ================= VIEW 1: POS REGISTER ================= -->
+      <section id="view-pos" class="app-view flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
+        
+        <!-- Left Catalog Area -->
+        <div class="flex-1 flex flex-col h-full bg-stone-950 overflow-hidden">
+          
+          <!-- Category Filter & Search Bar -->
+          <div class="p-4 border-b border-stone-800/80 bg-stone-900/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <!-- Search -->
+            <div class="relative flex-1 max-w-md">
+              <svg class="w-4 h-4 absolute left-3 top-2.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input id="input-search-product" type="text" placeholder="Cari kopi, manual brew, croissant..." class="w-full bg-stone-950 border border-stone-800 rounded-xl pl-9 pr-8 py-2 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500 transition-colors">
+              <button id="btn-clear-search" class="hidden absolute right-2.5 top-2.5 text-stone-500 hover:text-stone-300">✕</button>
+            </div>
+
+            <!-- Quick stats ticker -->
+            <div class="flex items-center gap-3 text-xs text-stone-400">
+              <span id="product-count-label">Menampilkan 20 Menu</span>
+            </div>
+          </div>
+
+          <!-- Category Pills Bar -->
+          <div class="px-4 py-2.5 border-b border-stone-800/60 bg-stone-900/30 flex items-center gap-2 overflow-x-auto select-none">
+            <button class="category-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 text-white whitespace-nowrap cursor-pointer transition-colors" data-category="all">
+              Semua Menu
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="signature">
+              ✨ Signature Aren & Cold Brew
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="espresso">
+              ☕ Espresso Bar & Latte
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="manual-brew">
+              🌿 Manual Brew & V60
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="non-coffee">
+              🍵 Matcha & Artisan Tea
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="pastry-snack">
+              🥐 Pastry & Toast Bites
+            </button>
+            <button class="category-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 whitespace-nowrap cursor-pointer transition-colors" data-category="beans-merch">
+              📦 Biji Kopi (Beans 250g)
+            </button>
+          </div>
+
+          <!-- Product Cards Grid -->
+          <div class="flex-1 p-4 overflow-y-auto">
+            <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5">
+              <!-- Rendered dynamically by app.js -->
+            </div>
+            <!-- Empty search state -->
+            <div id="product-empty-state" class="hidden h-64 flex flex-col items-center justify-center text-center p-6 text-stone-500">
+              <svg class="w-12 h-12 mb-2 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <p class="font-semibold text-stone-300 text-sm">Menu tidak ditemukan</p>
+              <p class="text-xs text-stone-500 mt-1">Coba kata kunci lain atau pilih kategori Semua Menu.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Cart Sidebar -->
+        <aside class="w-full lg:w-96 bg-stone-900 border-l border-stone-800 flex flex-col h-full shrink-0 select-none">
+          <!-- Cart Header -->
+          <div class="p-4 border-b border-stone-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <h2 class="font-bold text-stone-100 text-sm tracking-wide">Pesanan Kasir</h2>
+                <span id="cart-item-count" class="text-xs text-stone-400 tabular-nums">(0 item)</span>
+              </div>
+              <button id="btn-clear-cart" class="text-stone-400 hover:text-red-400 text-xs flex items-center gap-1 transition-colors cursor-pointer" title="Kosongkan">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span>Batal</span>
+              </button>
+            </div>
+
+            <!-- Order Type -->
+            <div class="grid grid-cols-3 gap-1 bg-stone-950 p-1 rounded-lg border border-stone-800/80 text-xs font-semibold">
+              <button class="order-type-btn active flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-amber-600 text-white cursor-pointer" data-type="dine-in">
+                <span>Dine In</span>
+              </button>
+              <button class="order-type-btn flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-stone-400 hover:text-stone-200 cursor-pointer" data-type="takeaway">
+                <span>Takeaway</span>
+              </button>
+              <button class="order-type-btn flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-stone-400 hover:text-stone-200 cursor-pointer" data-type="delivery">
+                <span>Delivery</span>
+              </button>
+            </div>
+
+            <!-- Customer & Table -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <input id="cart-customer-name" type="text" placeholder="Nama Tamu" class="w-full bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1.5 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500">
+              <select id="cart-table-select" class="w-full bg-stone-950 border border-stone-800 rounded-lg px-2 py-1.5 text-xs text-stone-100 focus:outline-hidden focus:border-amber-500 cursor-pointer">
+                <option value="">Pilih Meja...</option>
+                <option value="Meja 01">Meja 01 (Indoor)</option>
+                <option value="Meja 02">Meja 02 (Indoor)</option>
+                <option value="Meja 03">Meja 03 (Indoor)</option>
+                <option value="Meja 04">Meja 04 (Indoor)</option>
+                <option value="Meja 05">Meja 05 (Indoor)</option>
+                <option value="Taman 01">Taman 01 (Outdoor)</option>
+                <option value="Taman 02">Taman 02 (Outdoor)</option>
+                <option value="Taman 03">Taman 03 (Outdoor)</option>
+                <option value="Bar Stool 01">Bar Stool 01</option>
+                <option value="Bar Stool 02">Bar Stool 02</option>
+                <option value="VIP Lounge A">VIP Lounge A</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cart Item List -->
+          <div id="cart-item-list" class="flex-1 overflow-y-auto p-4 space-y-2.5">
+            <!-- Dynamic Cart Items Rendered Here -->
+          </div>
+
+          <!-- Empty Cart View -->
+          <div id="cart-empty-view" class="h-64 flex flex-col items-center justify-center text-center p-6 text-stone-500">
+            <div class="w-12 h-12 rounded-full bg-stone-800/60 flex items-center justify-center mb-2 text-stone-400">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+            <p class="font-medium text-stone-300 text-xs">Keranjang masih kosong</p>
+            <p class="text-[11px] text-stone-500 mt-0.5">Pilih kopi atau menu favorit di sebelah kiri.</p>
+          </div>
+
+          <!-- Bill Summary & Checkout Button -->
+          <div class="p-4 border-t border-stone-800 bg-stone-950/90 space-y-3">
+            <!-- Promo Voucher Trigger -->
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-stone-400 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span>Promo / Diskon</span>
+              </span>
+              <div id="applied-discount-badge" class="hidden items-center gap-1 text-emerald-400 font-semibold">
+                <span id="discount-label-text">-Rp 0</span>
+                <button id="btn-remove-discount" class="text-stone-500 hover:text-red-400 cursor-pointer ml-1">✕</button>
+              </div>
+              <button id="btn-open-promo" class="text-amber-500 hover:text-amber-400 font-medium cursor-pointer">
+                + Tambah Diskon
+              </button>
+            </div>
+
+            <!-- Financial Calculation lines -->
+            <div class="space-y-1.5 text-xs border-t border-stone-800/80 pt-2.5">
+              <div class="flex justify-between text-stone-400">
+                <span>Subtotal</span>
+                <span id="summary-subtotal" class="font-mono text-stone-200">Rp 0</span>
+              </div>
+              <div id="row-discount" class="hidden justify-between text-emerald-400">
+                <span id="summary-discount-reason">Diskon</span>
+                <span id="summary-discount-amount" class="font-mono">-Rp 0</span>
+              </div>
+              <div class="flex justify-between text-stone-400">
+                <span>Pajak Restoran (PB1 10%)</span>
+                <span id="summary-tax" class="font-mono text-stone-200">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-stone-400">
+                <span>Service Charge (5%)</span>
+                <span id="summary-service" class="font-mono text-stone-200">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-baseline pt-2 border-t border-stone-800 text-sm font-bold text-stone-100">
+                <span>Total Tagihan</span>
+                <span id="summary-grand-total" class="text-lg text-amber-400 font-mono">Rp 0</span>
+              </div>
+            </div>
+
+            <!-- Main Checkout Button -->
+            <button id="btn-proceed-payment" disabled class="w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-between transition-all shadow-md bg-stone-800 text-stone-500 cursor-not-allowed">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span>Bayar Sekarang</span>
+              </div>
+              <span id="btn-pay-total" class="font-mono tabular-nums">Rp 0</span>
+            </button>
+          </div>
+        </aside>
+      </section>
+
+      <!-- ================= VIEW 2: TABLE MANAGEMENT ================= -->
+      <section id="view-tables" class="app-view hidden flex-1 flex flex-col h-full bg-stone-950 overflow-hidden">
+        <div class="p-4 border-b border-stone-800 bg-stone-900 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="font-bold text-stone-100 text-base">Denah & Manajemen Meja</h2>
+            <p class="text-xs text-stone-400">Monitoring status meja dan pemesanan tempat</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-mono">
+            <span class="text-emerald-400">● <span id="tbl-available-count">0</span> Kosong</span>
+            <span class="text-amber-400">● <span id="tbl-occupied-count">0</span> Terisi</span>
+            <span class="text-indigo-400">● <span id="tbl-reserved-count">0</span> Reservasi</span>
+            <div class="px-2.5 py-1 bg-stone-800 rounded-lg text-stone-200">
+              Okupansi: <span id="tbl-occupancy-rate" class="font-bold text-amber-400">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section filter -->
+        <div class="px-4 py-3 flex items-center gap-2 overflow-x-auto">
+          <button class="table-filter-btn active px-3.5 py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white cursor-pointer" data-section="all">Semua Meja</button>
+          <button class="table-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 cursor-pointer" data-section="indoor">Indoor Area</button>
+          <button class="table-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 cursor-pointer" data-section="outdoor">Outdoor Garden</button>
+          <button class="table-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 cursor-pointer" data-section="bar">Bar Counter</button>
+          <button class="table-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium bg-stone-900 border border-stone-800 text-stone-400 cursor-pointer" data-section="vip">VIP Room</button>
+        </div>
+
+        <div class="flex-1 p-4 overflow-y-auto">
+          <div id="tables-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
+            <!-- Table cards rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 5: CASH SHIFTS ================= -->
+      <section id="view-shifts" class="app-view hidden flex-1 flex flex-col h-full bg-stone-950 overflow-hidden">
+        <div class="p-4 border-b border-stone-800 bg-stone-900 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="font-bold text-stone-100 text-base">Manajemen Shift & Kas Laci (Cash Drawer)</h2>
+            <p class="text-xs text-stone-400">Rekonsiliasi uang fisik kasir dan operasional kas</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-open-cash-modal" class="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium rounded-lg cursor-pointer">
+              Catat Kas Masuk / Keluar
+            </button>
+            <button id="btn-close-shift-action" class="px-3.5 py-2 bg-red-800 hover:bg-red-700 text-white text-xs font-semibold rounded-lg cursor-pointer">
+              Tutup Shift Kasir
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto space-y-5">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1 flex flex-col justify-between">
+              <div>
+                <span class="text-xs text-stone-400">Modal Kas Awal</span>
+                <div id="shift-starting-cash" class="text-lg font-bold font-mono text-stone-100">Rp 0</div>
+                <div class="text-[10px] text-stone-500">Kas modal awal di laci</div>
+              </div>
+              <button id="btn-edit-starting-cash" class="text-[11px] text-amber-500 hover:text-amber-400 font-medium text-left cursor-pointer pt-1">
+                ✎ Atur Modal Awal
+              </button>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Penjualan Tunai</span>
+              <div id="shift-cash-sales" class="text-lg font-bold font-mono text-amber-400">Rp 0</div>
+              <div class="text-[10px] text-stone-500">Uang tunai masuk dari POS</div>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Kas Masuk / Keluar</span>
+              <div id="shift-cash-adjustments" class="text-lg font-bold font-mono text-stone-200">Rp 0</div>
+              <div class="text-[10px] text-stone-500">Operasional belanja es/gas</div>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-700/80 rounded-xl space-y-1 bg-amber-950/20">
+              <span class="text-xs text-amber-300 font-semibold">Ekspektasi Kas Fisik</span>
+              <div id="shift-expected-cash" class="text-xl font-bold font-mono text-amber-400">Rp 500.000</div>
+              <div class="text-[10px] text-stone-400">Wajib ada di laci uang</div>
+            </div>
+          </div>
+
+          <!-- Non Cash Breakdown -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between">
+              <div>
+                <span class="text-xs text-stone-400">Penjualan QRIS</span>
+                <div id="shift-qris-sales" class="text-base font-bold font-mono text-cyan-400">Rp 0</div>
+              </div>
+              <span class="text-xs text-stone-500 font-mono">Langsung ke Bank</span>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl flex items-center justify-between">
+              <div>
+                <span class="text-xs text-stone-400">Penjualan Kartu EDC</span>
+                <div id="shift-edc-sales" class="text-base font-bold font-mono text-indigo-400">Rp 0</div>
+              </div>
+              <span class="text-xs text-stone-500 font-mono">Batch EDC</span>
+            </div>
+          </div>
+
+          <!-- Cash Movement Logs -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3">
+            <h3 class="font-semibold text-stone-200 text-xs">Riwayat Catatan Kas Operasional Hari Ini</h3>
+            <div id="shift-logs-container" class="space-y-2 text-xs">
+              <!-- Logs rendered here -->
+            </div>
+          </div>
+
+          <!-- Closed Shift History -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-stone-200 text-xs">Arsip Tutup Shift & Rekonsiliasi (Shift History)</h3>
+              <span id="closed-shifts-count" class="text-[11px] text-stone-400 font-mono">0 Shift Ditutup</span>
+            </div>
+            <div id="closed-shifts-container" class="space-y-2 text-xs">
+              <!-- Closed shifts rendered here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 6: SALES REPORTS ================= -->
+      <section id="view-reports" class="app-view hidden flex-1 flex flex-col h-full bg-stone-950 overflow-hidden">
+        <div class="p-4 border-b border-stone-800 bg-stone-900 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="font-bold text-stone-100 text-base">Laporan Penjualan & Analytics</h2>
+            <p class="text-xs text-stone-400">Ringkasan performa omzet dan riwayat transaksi lengkap</p>
+          </div>
+          <button id="btn-export-csv" class="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium rounded-lg cursor-pointer">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Download CSV Laporan</span>
+          </button>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto space-y-5">
+          <!-- Top 4 KPIs -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Total Omzet Hari Ini</span>
+              <div id="rpt-total-revenue" class="text-xl font-bold font-mono text-amber-400">Rp 0</div>
+              <div class="text-[10px] text-emerald-400">Termasuk PB1 & Service</div>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Jumlah Transaksi</span>
+              <div id="rpt-total-orders" class="text-xl font-bold font-mono text-stone-100">0 Nota</div>
+              <div class="text-[10px] text-stone-500">Semua pesanan selesai</div>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Rata-Rata Order (AOV)</span>
+              <div id="rpt-aov" class="text-xl font-bold font-mono text-stone-100">Rp 0</div>
+              <div class="text-[10px] text-stone-500">Nilai keranjang per tamu</div>
+            </div>
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-1">
+              <span class="text-xs text-stone-400">Porsi Kopi & Menu Terjual</span>
+              <div id="rpt-total-items-sold" class="text-xl font-bold font-mono text-stone-100">0 Cup</div>
+              <div class="text-[10px] text-stone-500">Volume cup & pastry</div>
+            </div>
+          </div>
+
+          <!-- Hourly Peak Hours & Top Best Sellers Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Hourly Sales Chart -->
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
+              <h3 class="font-semibold text-xs text-stone-200">Jam Sibuk Penjualan (Peak Hours)</h3>
+              <div id="hourly-chart-container" class="space-y-2 pt-2">
+                <!-- Hourly bars rendered here -->
+              </div>
+            </div>
+
+            <!-- Top Selling Items -->
+            <div class="p-4 bg-stone-900 border border-stone-800 rounded-xl space-y-3">
+              <h3 class="font-semibold text-xs text-stone-200">Menu Terlaris Hari Ini (Top Sellers)</h3>
+              <div id="top-sellers-container" class="space-y-2 pt-2">
+                <!-- Top items rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction History Table -->
+          <div class="bg-stone-900 border border-stone-800 rounded-xl overflow-hidden shadow-sm space-y-2 p-4">
+            <div class="flex items-center justify-between pb-2 border-b border-stone-800">
+              <h3 class="font-semibold text-xs text-stone-200">Riwayat Semua Transaksi</h3>
+              <input id="input-search-transaction" type="text" placeholder="Cari No. Nota / Tamu..." class="bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden">
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-stone-300">
+                <thead class="text-[10px] text-stone-400 uppercase tracking-wider border-b border-stone-800">
+                  <tr>
+                    <th class="py-2.5 px-3">No. Nota</th>
+                    <th class="py-2.5 px-3">Waktu</th>
+                    <th class="py-2.5 px-3">Pelanggan / Meja</th>
+                    <th class="py-2.5 px-3">Item Dipesan</th>
+                    <th class="py-2.5 px-3">Metode</th>
+                    <th class="py-2.5 px-3">Total</th>
+                    <th class="py-2.5 px-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-tbody" class="divide-y divide-stone-800/60 font-mono">
+                  <!-- Orders rendered here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= MODALS SECTION ================= -->
+
+    <!-- Modal 1: Drink Customizer Modal -->
+    <div id="modal-customizer" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="p-4 border-b border-stone-800 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img id="customizer-image" src="" alt="Menu" class="w-12 h-12 rounded-lg object-cover border border-stone-700">
+            <div>
+              <h3 id="customizer-title" class="font-semibold text-stone-100 text-sm">Nama Menu</h3>
+              <p id="customizer-price-stock" class="text-xs text-amber-400 font-mono tabular-nums">Rp 0</p>
+            </div>
+          </div>
+          <button id="btn-close-customizer" class="text-stone-400 hover:text-white p-1">✕</button>
+        </div>
+
+        <div class="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+          <!-- Temp -->
+          <div id="field-temp">
+            <label class="block font-semibold text-stone-300 uppercase tracking-wider mb-2">Suhu Penyajian</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" class="cust-temp-btn active p-2.5 rounded-lg border border-cyan-500 bg-cyan-950/40 text-cyan-200 font-semibold cursor-pointer" data-temp="ice">
+                ❄️ Dingin (Iced)
+              </button>
+              <button type="button" class="cust-temp-btn p-2.5 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 font-semibold cursor-pointer" data-temp="hot">
+                🔥 Panas (Hot)
+              </button>
+            </div>
+          </div>
+
+          <!-- Sugar Level -->
+          <div id="field-sugar">
+            <label class="block font-semibold text-stone-300 uppercase tracking-wider mb-2">Tingkat Manis (Sugar Level)</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" class="cust-sugar-btn active p-2 rounded-lg border border-amber-500 bg-amber-950/40 text-amber-200 font-semibold cursor-pointer" data-sugar="100%">100% (Normal)</button>
+              <button type="button" class="cust-sugar-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-sugar="70%">70% (Less)</button>
+              <button type="button" class="cust-sugar-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-sugar="50%">50% (Half)</button>
+              <button type="button" class="cust-sugar-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-sugar="0%">0% (No Sugar)</button>
+            </div>
+          </div>
+
+          <!-- Ice Level -->
+          <div id="field-ice">
+            <label class="block font-semibold text-stone-300 uppercase tracking-wider mb-2">Porsi Es Batu</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" class="cust-ice-btn active p-2 rounded-lg border border-amber-500 bg-amber-950/40 text-amber-200 font-semibold cursor-pointer" data-ice="normal">Normal Ice</button>
+              <button type="button" class="cust-ice-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-ice="less">Less Ice</button>
+              <button type="button" class="cust-ice-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-ice="extra">Extra Ice</button>
+            </div>
+          </div>
+
+          <!-- Milk Option -->
+          <div id="field-milk">
+            <label class="block font-semibold text-stone-300 uppercase tracking-wider mb-2">Pilihan Susu (Milk Choice)</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" class="cust-milk-btn active p-2.5 text-left rounded-lg border border-amber-500 bg-amber-950/40 text-amber-200 cursor-pointer" data-milk="fresh" data-addon="0">
+                <div class="font-bold">Fresh Milk</div>
+                <div class="text-[10px] text-stone-400">+Rp 0</div>
+              </button>
+              <button type="button" class="cust-milk-btn p-2.5 text-left rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-milk="oat" data-addon="8000">
+                <div class="font-bold">Oat Milk</div>
+                <div class="text-[10px] text-amber-400">+Rp 8.000</div>
+              </button>
+              <button type="button" class="cust-milk-btn p-2.5 text-left rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-milk="almond" data-addon="10000">
+                <div class="font-bold">Almond Milk</div>
+                <div class="text-[10px] text-amber-400">+Rp 10.000</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Extra Shot -->
+          <div id="field-extra-shot">
+            <label class="flex items-center justify-between p-3 rounded-lg border border-stone-800 bg-stone-800/30 cursor-pointer">
+              <span class="font-medium text-stone-300">Tambah Extra Espresso Shot (18g Arabica)</span>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400 font-mono font-semibold">+Rp 6.000</span>
+                <input id="check-extra-shot" type="checkbox" class="w-4 h-4 rounded text-amber-600">
+              </div>
+            </label>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block font-semibold text-stone-300 uppercase tracking-wider mb-1.5">Catatan Barista</label>
+            <input id="customizer-notes" type="text" placeholder="Contoh: Pisah es di cup terpisah, tanpa sedotan..." class="w-full bg-stone-950 border border-stone-800 rounded-lg px-3 py-2 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500">
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-stone-800 bg-stone-950/60 flex items-center justify-between gap-4">
+          <div class="flex items-center border border-stone-700 rounded-lg overflow-hidden bg-stone-900">
+            <button id="btn-cust-minus" class="p-2 text-stone-300 hover:text-white hover:bg-stone-800 cursor-pointer">－</button>
+            <span id="cust-qty" class="px-3 text-xs font-bold font-mono text-stone-100 tabular-nums">1</span>
+            <button id="btn-cust-plus" class="p-2 text-stone-300 hover:text-white hover:bg-stone-800 cursor-pointer">＋</button>
+          </div>
+          <button id="btn-confirm-add-cart" class="flex-1 py-2.5 px-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs flex items-center justify-between shadow-md cursor-pointer transition-colors">
+            <span>Tambahkan ke Pesanan</span>
+            <span id="cust-total-calc" class="font-mono text-sm">Rp 0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Payment Modal -->
+    <div id="modal-payment" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+        <div class="p-4 border-b border-stone-800 flex items-center justify-between bg-stone-950/60">
+          <div>
+            <h3 class="font-bold text-stone-100 text-sm">Pembayaran Kasir KawaKoe</h3>
+            <p id="pay-modal-customer-info" class="text-xs text-stone-400">Tamu · Dine In</p>
+          </div>
+          <button id="btn-close-payment" class="text-stone-400 hover:text-white">✕</button>
+        </div>
+
+        <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+          <!-- Left payment tabs -->
+          <div class="w-full md:w-56 border-b md:border-b-0 md:border-r border-stone-800 p-3 space-y-2 bg-stone-950/40">
+            <button type="button" class="pay-method-btn active w-full p-2.5 rounded-xl border border-amber-500 bg-amber-950/40 text-stone-100 text-left font-semibold text-xs cursor-pointer" data-method="cash">
+              💵 Uang Tunai (Cash)
+            </button>
+            <button type="button" class="pay-method-btn w-full p-2.5 rounded-xl border border-stone-800 bg-stone-900 text-stone-400 text-left font-semibold text-xs cursor-pointer" data-method="qris">
+              📱 QRIS Dinamis
+            </button>
+            <button type="button" class="pay-method-btn w-full p-2.5 rounded-xl border border-stone-800 bg-stone-900 text-stone-400 text-left font-semibold text-xs cursor-pointer" data-method="edc">
+              💳 Debit / Kartu EDC
+            </button>
+            <button type="button" class="pay-method-btn w-full p-2.5 rounded-xl border border-stone-800 bg-stone-900 text-stone-400 text-left font-semibold text-xs cursor-pointer" data-method="ewallet">
+              👛 E-Wallet (GoPay/Shopee)
+            </button>
+            <button type="button" class="pay-method-btn w-full p-2.5 rounded-xl border border-stone-800 bg-stone-900 text-stone-400 text-left font-semibold text-xs cursor-pointer" data-method="split">
+              ➗ Split Bill
+            </button>
+          </div>
+
+          <!-- Right settings -->
+          <div class="flex-1 p-5 overflow-y-auto space-y-4 flex flex-col justify-between">
+            <div>
+              <div class="p-3.5 bg-stone-950 rounded-xl border border-stone-800 flex items-center justify-between mb-4">
+                <span class="text-xs text-stone-400">Total Tagihan:</span>
+                <span id="pay-modal-total-display" class="text-2xl font-bold font-mono text-amber-400">Rp 0</span>
+              </div>
+
+              <!-- Cash UI -->
+              <div id="pay-ui-cash" class="space-y-3">
+                <label class="block text-xs font-semibold text-stone-300">Nominal Tunai Diterima (Rp)</label>
+                <input id="input-cash-received" type="number" class="w-full bg-stone-950 border border-stone-700 rounded-xl px-4 py-2.5 text-lg font-mono text-stone-100 focus:outline-hidden focus:border-amber-500">
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <button type="button" class="cash-preset-btn px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-xs font-mono rounded-lg cursor-pointer" data-amount="pas">Uang Pas</button>
+                  <button type="button" class="cash-preset-btn px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-xs font-mono rounded-lg cursor-pointer" data-amount="50000">Rp 50.000</button>
+                  <button type="button" class="cash-preset-btn px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-xs font-mono rounded-lg cursor-pointer" data-amount="100000">Rp 100.000</button>
+                  <button type="button" class="cash-preset-btn px-2.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-xs font-mono rounded-lg cursor-pointer" data-amount="200000">Rp 200.000</button>
+                </div>
+                <div id="pay-cash-change-box" class="p-3 rounded-xl border bg-emerald-950/30 border-emerald-800/60 flex items-center justify-between text-xs">
+                  <span id="pay-cash-status-label" class="text-emerald-300">Uang Kembalian:</span>
+                  <span id="pay-cash-change-val" class="text-base font-bold font-mono text-emerald-400">Rp 0</span>
+                </div>
+              </div>
+
+              <!-- QRIS UI -->
+              <div id="pay-ui-qris" class="hidden text-center space-y-3">
+                <div class="inline-block bg-white p-3 rounded-2xl shadow-xl border border-stone-200 max-w-[270px]">
+                  <img src="/assets/aistudio/WhatsApp_Image_2026-10-26_at_11.59.34_43e95654.jpeg" 
+                       alt="QRIS bee genZ" 
+                       class="w-full h-auto rounded-xl object-contain shadow-xs"
+                       onerror="this.src='/src/assets/images/qris_bee_genz.jpeg'">
+                </div>
+                <div class="space-y-1">
+                  <div class="text-xs font-bold text-stone-200">bee genZ · NMID: ID1026566671222</div>
+                  <div class="text-[11px] text-stone-400">Scan QRIS menggunakan BCA, Mandiri, GoPay, Dana, OVO, ShopeePay</div>
+                  <div class="text-[10px] text-emerald-400 font-mono font-medium">✓ Standar QRIS Nasional (GPN / ASPI)</div>
+                </div>
+              </div>
+
+              <!-- EDC UI -->
+              <div id="pay-ui-edc" class="hidden space-y-3 text-xs">
+                <label class="block font-semibold text-stone-300">Pilih Mesin EDC</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" class="edc-bank-btn active p-2.5 rounded-lg border border-indigo-500 bg-indigo-950/40 text-indigo-200 font-semibold cursor-pointer" data-bank="BCA">EDC BCA</button>
+                  <button type="button" class="edc-bank-btn p-2.5 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 font-semibold cursor-pointer" data-bank="Mandiri">EDC Mandiri</button>
+                </div>
+                <div class="p-2.5 bg-stone-950 rounded-lg text-stone-400">Approval Code: <span class="font-mono text-stone-200">#EDC-90412</span> (Siap Diproses)</div>
+              </div>
+
+              <!-- E-Wallet UI -->
+              <div id="pay-ui-ewallet" class="hidden space-y-3 text-xs">
+                <label class="block font-semibold text-stone-300">Provider E-Wallet</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" class="ewallet-btn active p-2.5 rounded-lg border border-emerald-500 bg-emerald-950/40 text-emerald-200 font-semibold cursor-pointer" data-wallet="GoPay">GoPay</button>
+                  <button type="button" class="ewallet-btn p-2.5 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 font-semibold cursor-pointer" data-wallet="ShopeePay">ShopeePay</button>
+                </div>
+              </div>
+
+              <!-- Split Bill UI -->
+              <div id="pay-ui-split" class="hidden space-y-3 text-xs">
+                <label class="block font-semibold text-stone-300">Bagi Rata Tagihan (Orang)</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button type="button" class="split-btn active p-2 rounded-lg border border-purple-500 bg-purple-950/40 text-purple-200 font-semibold cursor-pointer" data-count="2">2 Orang</button>
+                  <button type="button" class="split-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-count="3">3 Orang</button>
+                  <button type="button" class="split-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-count="4">4 Orang</button>
+                  <button type="button" class="split-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 cursor-pointer" data-count="5">5 Orang</button>
+                </div>
+                <div class="p-3 bg-stone-950 rounded-lg border border-stone-800">
+                  <span class="text-stone-400">Nominal per orang:</span>
+                  <div id="split-result-amount" class="text-lg font-bold font-mono text-purple-300">Rp 0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confirm Button -->
+            <button id="btn-confirm-payment" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl cursor-pointer shadow-lg transition-colors flex items-center justify-center gap-2">
+              <span>Selesaikan Pembayaran</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Thermal Receipt Preview Modal -->
+    <div id="modal-receipt" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+        <!-- Action Buttons -->
+        <div class="p-3 border-b border-stone-800 bg-stone-950 flex items-center justify-between gap-2 shrink-0">
+          <button id="btn-print-receipt" class="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold cursor-pointer">
+            🖨️ Cetak Thermal
+          </button>
+          <button id="btn-share-wa" class="flex-1 py-2 px-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold cursor-pointer">
+            📱 Kirim WA
+          </button>
+          <button id="btn-close-receipt" class="p-2 text-stone-400 hover:text-white cursor-pointer">✕</button>
+        </div>
+
+        <!-- Receipt Content (Always 100% white thermal paper) -->
+        <div class="p-4 overflow-y-auto flex-1 bg-stone-950/90 flex flex-col items-center">
+          <div id="receipt-screen-content" class="receipt-paper w-full max-w-[340px] p-6 text-[11px] leading-relaxed rounded-md shadow-2xl select-all shrink-0 bg-white text-stone-950 border border-stone-200">
+            <!-- Dynamic Receipt Text Built in app.js -->
+          </div>
+        </div>
+
+        <div class="p-3 border-t border-stone-800 bg-stone-950">
+          <button id="btn-receipt-new-order" class="w-full py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-100 font-semibold text-xs rounded-xl cursor-pointer">
+            Selesai & Buat Pesanan Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Promo / Discount Modal -->
+    <div id="modal-promo" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-xl w-full max-w-sm p-4 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-2">
+          <h3 class="font-bold text-stone-100 text-xs">Pilih Diskon KawaKoe</h3>
+          <button id="btn-close-promo" class="text-stone-400 hover:text-white">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button type="button" class="promo-choice-btn p-2.5 bg-stone-950 border border-stone-800 rounded-lg hover:border-amber-500 text-left cursor-pointer" data-type="percent" data-val="10" data-label="Member KawaKoe (10%)">
+            <div class="font-bold text-amber-400">Member 10%</div>
+            <div class="text-[10px] text-stone-400">Khusus pelanggan terdaftar</div>
+          </button>
+          <button type="button" class="promo-choice-btn p-2.5 bg-stone-950 border border-stone-800 rounded-lg hover:border-amber-500 text-left cursor-pointer" data-type="percent" data-val="20" data-label="Staff & Barista (20%)">
+            <div class="font-bold text-amber-400">Staff 20%</div>
+            <div class="text-[10px] text-stone-400">Karyawan & partner</div>
+          </button>
+          <button type="button" class="promo-choice-btn p-2.5 bg-stone-950 border border-stone-800 rounded-lg hover:border-amber-500 text-left cursor-pointer" data-type="nominal" data-val="10000" data-label="Voucher Rp 10.000">
+            <div class="font-bold text-amber-400">Voucher 10rb</div>
+            <div class="text-[10px] text-stone-400">Voucher fisik</div>
+          </button>
+          <button type="button" class="promo-choice-btn p-2.5 bg-stone-950 border border-stone-800 rounded-lg hover:border-amber-500 text-left cursor-pointer" data-type="nominal" data-val="15000" data-label="Promo Jam Kopi Siang (Rp 15.000)">
+            <div class="font-bold text-amber-400">Promo 15rb</div>
+            <div class="text-[10px] text-stone-400">Afternoon Coffee</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 5: Set Starting Cash Modal -->
+    <div id="modal-starting-cash" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-xs p-5 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-3">
+          <h3 class="font-bold text-stone-100 text-sm">Atur Modal Kas Awal</h3>
+          <button id="btn-close-starting-cash" class="text-stone-400 hover:text-white">✕</button>
+        </div>
+        <form id="form-starting-cash" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Modal Awal Laci (Rp)</label>
+            <input id="input-new-starting-cash" type="number" min="0" placeholder="0" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2.5 text-stone-100 font-mono text-sm focus:outline-hidden focus:border-amber-500">
+            <p class="text-[10px] text-stone-500 mt-1">Uang fisik yang dimasukkan ke laci saat buka toko.</p>
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg cursor-pointer transition-colors">
+            Simpan Modal Awal
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 6: Cash In/Out Modal -->
+    <div id="modal-cash-in-out" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-3">
+          <h3 class="font-bold text-stone-100 text-sm">Catat Kas Operasional Laci</h3>
+          <button id="btn-close-cash-modal" class="text-stone-400 hover:text-white">✕</button>
+        </div>
+        <form id="form-cash-log" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Tipe Mutasi</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" class="cash-type-btn active p-2 rounded-lg border border-emerald-500 bg-emerald-950/40 text-emerald-200 font-semibold cursor-pointer" data-type="in">
+                + Kas Masuk (Modal)
+              </button>
+              <button type="button" class="cash-type-btn p-2 rounded-lg border border-stone-800 bg-stone-800/40 text-stone-400 font-semibold cursor-pointer" data-type="out">
+                - Kas Keluar (Beli)
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Nominal (Rp)</label>
+            <input id="cash-log-amount" required type="number" placeholder="Contoh: 30000" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100 font-mono">
+          </div>
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Keperluan / Keterangan</label>
+            <input id="cash-log-note" required type="text" placeholder="Contoh: Beli es batu kristal 2 kantong" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100">
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg cursor-pointer transition-colors">
+            Simpan Catatan Kas
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 7: Settings Modal -->
+    <div id="modal-settings" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-3">
+          <h3 class="font-bold text-stone-100 text-sm">Pengaturan KawaKoe POS</h3>
+          <button id="btn-close-settings" class="text-stone-400 hover:text-white">✕</button>
+        </div>
+        <form id="form-settings" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Nama Kedai / Coffee Shop</label>
+            <input id="set-shop-name" type="text" value="KawaKoe Coffee & Roastery" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100">
+          </div>
+          <div>
+            <label class="block text-stone-300 font-semibold mb-1">Alamat Lengkap</label>
+            <input id="set-shop-address" type="text" value="Jl. Senopati No. 42, Kebayoran Baru, Jakarta Selatan" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-stone-300 font-semibold mb-1">WiFi SSID</label>
+              <input id="set-wifi-ssid" type="text" value="KawaKoe_Visitor" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100">
+            </div>
+            <div>
+              <label class="block text-stone-300 font-semibold mb-1">Password WiFi</label>
+              <input id="set-wifi-pass" type="text" value="kawakoebrewing" class="w-full bg-stone-950 border border-stone-800 rounded-lg p-2 text-stone-100">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <label class="flex items-center gap-2 p-2 bg-stone-950 border border-stone-800 rounded-lg cursor-pointer">
+              <input id="set-enable-tax" type="checkbox" checked class="w-4 h-4 rounded text-amber-600">
+              <span class="text-stone-300">Pajak PB1 (10%)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-stone-950 border border-stone-800 rounded-lg cursor-pointer">
+              <input id="set-enable-service" type="checkbox" checked class="w-4 h-4 rounded text-amber-600">
+              <span class="text-stone-300">Service Fee (5%)</span>
+            </label>
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg cursor-pointer transition-colors mt-2">
+            Simpan Pengaturan
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 8: Close Shift (Tutup Shift & Rekonsiliasi Kasir) -->
+    <div id="modal-close-shift" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+        <!-- Modal Header -->
+        <div class="p-4 border-b border-stone-800 flex items-center justify-between bg-stone-950 shrink-0">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-red-950/80 border border-red-700/60 flex items-center justify-center text-red-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-stone-100 text-sm">Tutup Shift & Rekonsiliasi Kasir</h3>
+              <p class="text-[11px] text-stone-400">Verifikasi uang fisik kasir & cetak rekap shift</p>
+            </div>
+          </div>
+          <button id="btn-close-cs-modal" class="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors cursor-pointer">✕</button>
+        </div>
+
+        <!-- Scrollable Modal Body -->
+        <div class="p-4 overflow-y-auto flex-1 space-y-4 text-xs">
+          <!-- Active Cashier & Shift Info Card -->
+          <div class="p-3 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Kasir Bertugas</div>
+              <div class="font-semibold text-stone-100 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span id="cs-cashier-name">Abijo (Kasir Utama)</span>
+              </div>
+            </div>
+            <div class="text-right space-y-0.5">
+              <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Waktu Buka Shift</div>
+              <div id="cs-shift-start-time" class="font-mono text-stone-300">Hari ini, 08:00 WIB</div>
+            </div>
+          </div>
+
+          <!-- Drawer Breakdown Summary -->
+          <div class="space-y-2">
+            <h4 class="font-semibold text-stone-300 text-xs">1. Rincian Saldo Kas Laci (Drawer Audit)</h4>
+            <div class="p-3.5 bg-stone-950 border border-stone-800 rounded-xl space-y-2 font-mono">
+              <div class="flex justify-between items-center text-stone-400">
+                <span>Modal Kas Awal:</span>
+                <span id="cs-starting-cash" class="text-stone-200">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center text-stone-400">
+                <span>Penjualan Tunai (+):</span>
+                <span id="cs-cash-sales" class="text-amber-400 font-bold">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center text-stone-400">
+                <span>Kas Masuk Operasional (+):</span>
+                <span id="cs-cash-in" class="text-emerald-400">Rp 0</span>
+              </div>
+              <div class="flex justify-between items-center text-stone-400">
+                <span>Kas Keluar Operasional (-):</span>
+                <span id="cs-cash-out" class="text-red-400">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-stone-800 flex justify-between items-center">
+                <span class="font-sans font-bold text-stone-200 text-xs">Ekspektasi Uang Fisik di Laci:</span>
+                <span id="cs-expected-cash" class="text-base font-bold text-amber-400 font-mono">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Non-Cash Sales Summary -->
+          <div class="space-y-2">
+            <h4 class="font-semibold text-stone-300 text-xs">2. Penjualan Non-Tunai & Omzet Shift</h4>
+            <div class="grid grid-cols-3 gap-2 text-center font-mono">
+              <div class="p-2.5 bg-stone-950 border border-stone-800 rounded-xl">
+                <div class="text-[10px] font-sans text-stone-500">QRIS</div>
+                <div id="cs-qris-sales" class="font-bold text-cyan-400 text-xs mt-0.5">Rp 0</div>
+              </div>
+              <div class="p-2.5 bg-stone-950 border border-stone-800 rounded-xl">
+                <div class="text-[10px] font-sans text-stone-500">EDC / Kartu</div>
+                <div id="cs-edc-sales" class="font-bold text-indigo-400 text-xs mt-0.5">Rp 0</div>
+              </div>
+              <div class="p-2.5 bg-stone-950 border border-stone-800 rounded-xl">
+                <div class="text-[10px] font-sans text-stone-500">Total Omzet</div>
+                <div id="cs-total-sales" class="font-bold text-emerald-400 text-xs mt-0.5">Rp 0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Physical Cash Counting Form -->
+          <div class="space-y-2 pt-1">
+            <div class="flex items-center justify-between">
+              <label for="input-cs-actual-cash" class="font-semibold text-stone-200 text-xs">
+                3. Input Uang Fisik Hasil Hitung (Rp) <span class="text-red-400">*</span>
+              </label>
+              <button id="btn-cs-match-expected" type="button" class="text-[11px] text-amber-400 hover:text-amber-300 font-medium underline cursor-pointer">
+                ⚡ Samakan dengan Ekspektasi
+              </button>
+            </div>
+            <input id="input-cs-actual-cash" type="number" min="0" placeholder="Contoh: 500000" class="w-full bg-stone-950 border border-stone-800 rounded-xl p-3 text-sm font-mono font-bold text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500 transition-colors">
+
+            <!-- Realtime Discrepancy Status Card -->
+            <div id="cs-discrepancy-card" class="p-3 bg-stone-950 border border-stone-800 rounded-xl flex items-center justify-between">
+              <span class="text-stone-400 text-xs">Status Selisih Kas:</span>
+              <span id="cs-discrepancy-badge" class="font-bold font-mono text-stone-400">Masukkan nominal fisik</span>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="space-y-1.5">
+            <label for="input-cs-notes" class="block font-semibold text-stone-300 text-xs">Catatan Tutup Shift (Opsional)</label>
+            <textarea id="input-cs-notes" rows="2" placeholder="Contoh: Uang fisik telah disetorkan ke brankas/owner, sisa uang modal Rp 200.000 untuk shift besok." class="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-xs text-stone-100 placeholder:text-stone-600 focus:outline-hidden focus:border-amber-500"></textarea>
+          </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="p-3 border-t border-stone-800 bg-stone-950 flex flex-col sm:flex-row items-stretch gap-2 shrink-0">
+          <button id="btn-print-shift-thermal" type="button" class="py-2.5 px-3.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>Cetak Struk Rekap</span>
+          </button>
+          <button id="btn-confirm-close-shift" type="button" class="flex-1 py-2.5 px-3 bg-red-700 hover:bg-red-600 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-red-950/50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>Kunci & Tutup Shift (Ke Login)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 9: Shift Thermal Receipt Preview Modal (Rekap Shift) -->
+    <div id="modal-shift-receipt" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+        <!-- Action Buttons -->
+        <div class="p-3 border-b border-stone-800 bg-stone-950 flex items-center justify-between gap-1.5 shrink-0">
+          <button id="btn-print-shift-preview" type="button" class="flex-1 py-2 px-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1 transition-colors">
+            <span>🖨️ Cetak</span>
+          </button>
+          <button id="btn-copy-shift-receipt" type="button" class="flex-1 py-2 px-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1 transition-colors">
+            <span>📋 Salin</span>
+          </button>
+          <button id="btn-share-shift-wa" type="button" class="flex-1 py-2 px-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold cursor-pointer flex items-center justify-center gap-1 transition-colors">
+            <span>📱 WA</span>
+          </button>
+          <button id="btn-close-shift-receipt" type="button" class="p-2 text-stone-400 hover:text-white cursor-pointer rounded-lg hover:bg-stone-800 transition-colors">✕</button>
+        </div>
+
+        <!-- Receipt Content (Always 100% white thermal paper) -->
+        <div class="p-4 overflow-y-auto flex-1 bg-stone-950/90 flex flex-col items-center">
+          <div id="shift-receipt-screen-content" class="receipt-paper w-full max-w-[340px] p-6 text-[11px] leading-relaxed rounded-md shadow-2xl select-all shrink-0 bg-white text-stone-950 border border-stone-200">
+            <!-- Dynamic Shift Receipt Text Injected in app.js -->
+          </div>
+        </div>
+
+        <div class="p-3 border-t border-stone-800 bg-stone-950 space-y-2">
+          <button id="btn-redirect-login-shift" type="button" class="w-full py-2.5 bg-red-700 hover:bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-lg shadow-red-950/40">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span>Tutup Sesi & Keluar ke Halaman Login</span>
+          </button>
+          <button id="btn-done-shift-receipt" type="button" class="w-full py-1.5 bg-stone-800/80 hover:bg-stone-800 text-stone-300 font-medium text-[11px] rounded-lg cursor-pointer transition-colors">
+            Tetap di Kasir (Buka Shift Baru Langsung)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Toast Notification -->
+    <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 bg-stone-900 border border-amber-600/60 text-stone-100 text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 transition-all">
+      <span id="toast-icon" class="text-amber-400 text-base">✓</span>
+      <span id="toast-message" class="font-medium">Pesan notifikasi</span>
+    </div>
+
+    <!-- Hidden Dedicated Printable Thermal Receipt Format -->
+    <div id="thermal-receipt-printable" class="hidden">
+      <!-- Injected before window.print() -->
+    </div>
+
+    <!-- Pure JavaScript Application Logic -->
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
